@@ -1,12 +1,12 @@
-# react-native-progress-bar
+# react-native-simple-progress-bar
 
-An animated progress bar for React Native.
+Animated React Native progress bar.
 
 ![](https://i.imgur.com/EGufppz.gif)
 
 ## Getting started
 
-1. `npm install react-native-progress-bar@latest --save`
+1. `yarn add react-native-simple-progress-bar`
 
 ## Example usage
 
@@ -18,7 +18,7 @@ var {
   Text,
   View,
 } = React;
-var ProgressBar = require('react-native-progress-bar');
+var ProgressBar = require('react-native-simple-progress-bar');
 
 var rnsandbox = React.createClass({
 
