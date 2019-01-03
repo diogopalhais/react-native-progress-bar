@@ -1,67 +1,87 @@
-import React from 'react';
+import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
 import {
-    StyleSheet,
-    Text,
-    View,
-    Animated,
-    Easing,
-} from 'react-native';
+  View,
+  Easing,
+  Animated,
+  StyleSheet,
+  Dimensions,
+  ViewPropTypes
+} from "react-native";
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   background: {
-    backgroundColor: '#bbbbbb',
+    backgroundColor: "#bbbbbb",
     height: 5,
-    overflow: 'hidden'
+    overflow: "hidden"
   },
   fill: {
-    backgroundColor: '#3b5998',
+    backgroundColor: "#3b5998",
     height: 5
   }
 });
 
-var ProgressBar = React.createClass({
+export default class ProgressBar extends PureComponent {
+  static propTypes = {
+    width: PropTypes.number,
+    easing: PropTypes.any,
+    style: PropTypes.object,
+    progress: PropTypes.number,
+    fillStyle: ViewPropTypes.style,
+    easingDuration: PropTypes.number,
+  };
 
-  getDefaultProps() {
-    return {
-      style: styles,
-      easing: Easing.inOut(Easing.ease),
-      easingDuration: 500
-    };
-  },
+  static defaultProps = {
+    progress: 0,
+    style: styles,
+    easingDuration: 500,
+    fillStyle: undefined,
+    easing: Easing.inOut(Easing.ease),
+    width: Dimensions.get("window").width
+  };
 
-  getInitialState() {
-    return {
-      progress: new Animated.Value(this.props.initialProgress || 0)
-    };
-  },
+  state = {
+    progress: new Animated.Value(this.props.progress)
+  };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.progress >= 0 && this.props.progress != prevProps.progress) {
-      this.update();
+  componentWillReceiveProps(prevProps) {
+    if (prevProps.progress <= 1 && this.props.progress !== prevProps.progress) {
+      this.update(prevProps.progress);
     }
-  },
+  }
 
-  render() {
-
-    var fillWidth = this.state.progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0 * this.props.style.width, 1 * this.props.style.width],
-    });
-
-    return (
-      <View style={[styles.background, this.props.backgroundStyle, this.props.style]}>
-        <Animated.View style={[styles.fill, this.props.fillStyle, { width: fillWidth }]}/>
-      </View>
-    );
-  },
-
-  update() {
+  update(progress) {
     Animated.timing(this.state.progress, {
       easing: this.props.easing,
       duration: this.props.easingDuration,
-      toValue: this.props.progress
+      toValue: progress > 1 ? 1 : progress
     }).start();
   }
-});
 
-module.exports = ProgressBar;
+  value() {
+    return this.state.progress._value;
+  }
+
+  render() {
+    const fillWidth = this.state.progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [
+        0 * (this.props.style.width || this.props.width),
+        1 * (this.props.style.width || this.props.width)
+      ]
+    });
+
+    return (
+      <View
+        style={[
+          styles.background,
+          this.props.style
+        ]}
+      >
+        <Animated.View
+          style={[styles.fill, this.props.fillStyle, { width: fillWidth }]}
+        />
+      </View>
+    );
+  }
+}
